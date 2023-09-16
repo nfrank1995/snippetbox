@@ -2,14 +2,32 @@ package main
 
 import (
   "flag"
-  "log"
+  "log/slog"
   "net/http"
+  "os"
 )
 
 func main() {
     addr := flag.String("addr", ":4000", "HTTP network address")
+    logLevel := flag.String("log-level", "Info", "The minimum log level to log. Supported severity levels are Debug, Info, Warning and Error in that order.")
 
     flag.Parse()
+
+    logLevelMap := make(map[string]slog.Level)
+    logLevelMap["Debug"] = slog.LevelDebug
+    logLevelMap["Info"] = slog.LevelInfo
+    logLevelMap["Warning"] = slog.LevelWarn
+    logLevelMap["Error"] = slog.LevelError
+
+    slogLevel, logFlagOk := logLevelMap[*logLevel]
+
+    logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+      Level: slogLevel,
+    }))
+
+    if !logFlagOk {
+      logger.Warn("could not set log level, fall back to log level Info", slog.String("log-level", *logLevel))
+    }
 
     mux := http.NewServeMux()
 
@@ -21,8 +39,9 @@ func main() {
     mux.HandleFunc("/snippet/view", snippetView)
     mux.HandleFunc("/snippet/create", snippetCreate)
 
-    log.Printf("starting server on %s", *addr)
-    
+    logger.Info("starting server", "addr", *addr)
+
     err := http.ListenAndServe(*addr, mux)
-    log.Fatal(err)
+    logger.Error(err.Error())
+    os.Exit(1)
 }

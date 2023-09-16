@@ -7,15 +7,11 @@ To run the project switch into main project folder (snippetbox) and run the foll
 go run ./cmd/web
 ```
 ### configuration
-To configure the app there are some flags that can be set when starting the app. A list of all flags can be found in the following section or by typing
+To configure the app there are some flags that can be set when starting the app. A list of all flags can be found by typing
 ```bash
 go run ./cmd/web -help
 ```
-
-#### flags
-- addr
-    - sets the server address the server starts on :9999
-    ```bash
-    go run ./cmd/web -addr=":9999"
-    ```
-
+ - f.e. the following command starts the server on address :9999
+  ```bash
+  go run ./cmd/web -addr=:9999
+  ```
