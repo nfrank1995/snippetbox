@@ -2,7 +2,7 @@ package main
 
 import (
   "fmt"
-  "html/template"
+  // "html/template"
   "net/http"
   "strconv"
   "github.com/nfrank1995/snippetbox/internal/models"
@@ -10,27 +10,37 @@ import (
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-  if r.URL.Path != "/" {
-      app.notFound(w)
-      return
-  }
+    if r.URL.Path != "/" {
+        app.notFound(w)
+        return
+    }
 
-  files := []string{
-      "./ui/html/base.tmpl",
-      "./ui/html/partials/nav.tmpl",
-      "./ui/html/pages/home.tmpl",
-  }
+    snippets, err := app.snippets.Latest()
+    if err != nil {
+        app.serverError(w, r, err)
+        return
+    }
 
-  ts, err := template.ParseFiles(files...)
-  if err != nil {
-      app.serverError(w, r, err)
-      return
-  }
+    for _, snippet := range snippets {
+        fmt.Fprintf(w, "%+v\n", snippet)
+    }
 
-  err = ts.ExecuteTemplate(w, "base", nil)
-  if err != nil {
-      app.serverError(w, r, err)
-  }
+    // files := []string{
+    //     "./ui/html/base.tmpl",
+    //     "./ui/html/partials/nav.tmpl",
+    //     "./ui/html/pages/home.tmpl",
+    // }
+
+    // ts, err := template.ParseFiles(files...)
+    // if err != nil {
+    //     app.serverError(w, r, err)
+    //     return
+    // }
+
+    // err = ts.ExecuteTemplate(w, "base", nil)
+    // if err != nil {
+    //     app.serverError(w, r, err)
+    // }
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
